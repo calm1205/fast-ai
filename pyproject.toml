@@ -1,7 +1,6 @@
 [project]
-name = "life-span"
+name = "fast-ai"
 version = "0.1.0"
-description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -16,3 +15,7 @@ dev = [
     "mypy>=1.15.0",
     "ruff>=0.11.11",
 ]
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true

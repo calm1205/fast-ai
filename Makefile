@@ -3,3 +3,4 @@ dev:
 
 lint:
 	ruff format .
+	mypy src/
