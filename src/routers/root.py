@@ -4,7 +4,7 @@ from fastapi import APIRouter
 router = APIRouter()
 
 
-@router.get("/")
+@router.head("/")
 def read_root() -> Dict[str, str]:
     return {"message": "Hello World"}
 

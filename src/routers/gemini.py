@@ -40,13 +40,11 @@ async def gemini(request: GeminiRequest) -> GeminiResponse:
                 return GeminiResponse(
                     prompt=request.prompt,
                     response=generated_text,
-                    # full_response=result
                 )
             else:
                 return GeminiResponse(
                     prompt=request.prompt,
                     response="レスポンスの生成に失敗しました",
-                    # full_response=result,
                 )
 
     except httpx.HTTPStatusError as e:
