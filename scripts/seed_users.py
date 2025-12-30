@@ -5,6 +5,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from faker import Faker
+
 from src.database import SessionLocal, engine, Base
 from src.models.user import User
 
@@ -12,6 +14,7 @@ from src.models.user import User
 def seed_users(count: int = 100) -> None:
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
+    fake = Faker()
 
     try:
         existing_count = db.query(User).count()
@@ -21,10 +24,10 @@ def seed_users(count: int = 100) -> None:
 
         users = [
             User(
-                name=f"User {i:03d}",
-                email=f"user{i:03d}@example.com",
+                name=fake.name(),
+                email=fake.unique.email(),
             )
-            for i in range(1, count + 1)
+            for _ in range(count)
         ]
 
         db.add_all(users)
