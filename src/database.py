@@ -1,8 +1,12 @@
 from collections.abc import Generator
+from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session, DeclarativeBase
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./app.db"
+DATA_DIR = Path("data")
+DATA_DIR.mkdir(exist_ok=True)
+
+SQLALCHEMY_DATABASE_URL = f"sqlite:///{DATA_DIR}/app.db"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}

@@ -3,10 +3,10 @@ setup:
 	uv venv --python 3.13.3
 	uv sync
 
-dev:
-	uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
-
 lint:
-	ruff check .
-	ruff format .
-	mypy src/
+	docker compose exec app uv run ruff check .
+	docker compose exec app uv run ruff format .
+	docker compose exec app uv run mypy src/
+
+idb:
+	docker compose exec app sqlite3 data/app.db
