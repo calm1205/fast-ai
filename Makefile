@@ -4,9 +4,9 @@ setup:
 	uv sync
 
 lint:
-	docker compose exec app uv run ruff check .
-	docker compose exec app uv run ruff format .
-	docker compose exec app uv run mypy src/
+	uv run ruff check .
+	uv run ruff format .
+	uv run mypy src/
 
 idb:
 	docker compose exec app sqlite3 data/app.db

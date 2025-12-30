@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from src.database import get_db
@@ -12,6 +12,19 @@ router = APIRouter(prefix="/users", tags=["users"])
 def get_users(db: Session = Depends(get_db)) -> list[User]:
     """全ユーザーを取得"""
     return list(db.query(User).all())
+
+
+@router.get("/search", response_model=list[UserResponse])
+def search_user(
+    query: str = Query(..., description="検索クエリ"), db: Session = Depends(get_db)
+) -> list[User]:
+    """ユーザーを検索"""
+    users = (
+        db.query(User)
+        .filter(User.name.like(f"%{query}%") | User.email.like(f"%{query}%"))
+        .all()
+    )
+    return users
 
 
 @router.get("/{user_id}", response_model=UserResponse)

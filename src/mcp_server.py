@@ -20,7 +20,9 @@ def search_users(query: str) -> list[dict[str, str | int]]:
     rows = cursor.fetchall()
     conn.close()
 
-    return [{"id": row["id"], "name": row["name"], "email": row["email"]} for row in rows]
+    return [
+        {"id": row["id"], "name": row["name"], "email": row["email"]} for row in rows
+    ]
 
 
 if __name__ == "__main__":
