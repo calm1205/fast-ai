@@ -21,5 +21,22 @@ services:
         - action: rebuild
           path: ./uv.lock
 
+  mcp:
+    build: .
+    volumes:
+      - data:/app/data
+    stdin_open: true
+    tty: true
+    command: uv run python src/mcp_server.py
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /app/src
+        - action: rebuild
+          path: ./pyproject.toml
+        - action: rebuild
+          path: ./uv.lock
+
 volumes:
   data:
