@@ -13,6 +13,9 @@ services:
         - action: sync
           path: ./src
           target: /app/src
+        - action: sync
+          path: ./scripts
+          target: /app/scripts
         - action: rebuild
           path: ./pyproject.toml
         - action: rebuild

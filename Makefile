@@ -10,3 +10,6 @@ lint:
 
 idb:
 	docker compose exec app sqlite3 data/app.db
+
+seed:
+	docker compose exec app uv run python scripts/seed_users.py

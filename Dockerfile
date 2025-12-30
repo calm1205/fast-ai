@@ -16,3 +16,4 @@ RUN uv sync --frozen --no-dev
 COPY .sqliterc /root/.sqliterc
 
 COPY src ./src
+COPY scripts ./scripts
