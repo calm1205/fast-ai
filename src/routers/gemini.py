@@ -18,6 +18,7 @@ from src.schemas.google import (
 router = APIRouter()
 
 DB_PATH = "data/app.db"
+GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent"
 
 # search_usersツールの定義
 SEARCH_USERS_TOOL = Tool(
@@ -40,7 +41,7 @@ SEARCH_USERS_TOOL = Tool(
 )
 
 
-def search_users(query: str) -> list[dict[str, Any]]:
+def search_users_from_db(query: str) -> list[dict[str, Any]]:
     """DBからユーザーを検索"""
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -62,7 +63,7 @@ async def call_gemini_api(
     tools: list[Tool] | None = None,
 ) -> dict[str, Any]:
     """Gemini APIを呼び出す"""
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
+    url = f"{GEMINI_API_URL}?key={api_key}"
 
     request_body: dict[str, Any] = {"contents": [c.model_dump() for c in contents]}
     if tools:
@@ -83,7 +84,34 @@ async def call_gemini_api(
 async def gemini(request: GeminiRequest) -> GeminiResponse:
     """
     Gemini APIを呼び出してテキストを生成します。
-    ユーザー検索が必要な場合はFunction Callingで対応します。
+    """
+    api_key = get_required_env_var("GEMINI_API_KEY")
+
+    contents = [GeminiAPIContentRequest(parts=[GeminiAPIPartRequest(text=request.prompt)])]
+
+    try:
+        result = await call_gemini_api(api_key, contents)
+
+        if "candidates" in result and len(result["candidates"]) > 0:
+            generated_text = result["candidates"][0]["content"]["parts"][0]["text"]
+            return GeminiResponse(prompt=request.prompt, response=generated_text)
+
+        return GeminiResponse(prompt=request.prompt, response="レスポンスの生成に失敗しました")
+
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(
+            status_code=e.response.status_code,
+            detail=f"Gemini API error: {e.response.text}",
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+
+
+@router.post("/gemini/user/search", response_model=GeminiResponse)
+async def gemini_user_search(request: GeminiRequest) -> GeminiResponse:
+    """
+    Gemini APIのFunction Callingを使用してユーザーを検索します。
+    自然文でユーザー検索ができます。
     """
     api_key = get_required_env_var("GEMINI_API_KEY")
 
@@ -116,7 +144,7 @@ async def gemini(request: GeminiRequest) -> GeminiResponse:
         func_args = function_call["args"]
 
         if func_name == "search_users":
-            search_result = search_users(func_args["query"])
+            search_result = search_users_from_db(func_args["query"])
         else:
             search_result = {"error": f"Unknown function: {func_name}"}
 
